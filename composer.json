@@ -1,0 +1,19 @@
+{
+  "name": "badiiabdelkhalak/gestiondustock",
+  "description": "Gestion du stock magasin.",
+  "autoload": {
+    "psr-4": {
+      "GestionDuStock\\Command\\": "src/Command/",
+      "GestionDuStock\\Controller\\": "src/Controller/",
+      "PrestaShopBundle\\Entity\\": "src/Entity/",
+      "GestionDuStock\\Form\\": "src/Form/",
+      "GestionDuStock\\Repository\\": "src/Repository/",
+      "GestionDuStock\\Resources\\": "src/Resources/",
+      "GestionDuStock\\Service\\": "src/Service/",
+      "GestionDuStock\\Traits\\": "src/Traits/"
+    }
+  },
+  "type": "prestashop-module",
+  "require": {
+  }
+}

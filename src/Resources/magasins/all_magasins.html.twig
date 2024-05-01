@@ -1,0 +1,116 @@
+{% extends '@PrestaShop/Admin/layout.html.twig' %}
+{% block javascripts %}
+    {{ parent() }}
+{% endblock %}
+{% block content %}
+    <div class="row">
+    <div class="col-md-12">
+        <div class="card card-kpis">
+            <div class="row orders-kpi justify-content-around">   
+                <div class="col">
+                    <div class="kpi-container box-stats">
+                        <div class="kpi-content -color1">
+                            <i class="material-icons">assessment</i>
+                            <span class="title">Taux de transformation</span>
+                            <div class="kpi-description">
+                                <div class="subtitle">30 jours</div>
+                                <div class="value">0%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="kpi-container box-stats">
+                        <div class="kpi-content -color1">
+                            <i class="material-icons">assessment</i>
+                            <span class="title">Taux de transformation</span>
+                            <div class="kpi-description">
+                                <div class="subtitle">30 jours</div>
+                                <div class="value">0%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="kpi-container box-stats">
+                        <div class="kpi-content -color1">
+                            <i class="material-icons">assessment</i>
+                            <span class="title">Taux de transformation</span>
+                            <div class="kpi-description">
+                                <div class="subtitle">30 jours</div>
+                                <div class="value">0%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        {% for flashMessage in app.flashes('success') %}
+            <div class="alert alert-danger d-print-none" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true"><i class="material-icons">close</i></span>
+                </button>
+                <div class="alert-text">
+                    <p>{{ flashMessage }}</p>
+                </div>
+            </div>
+        {% endfor %}
+        {% for flashMessage in app.flashes('danger') %}
+        <div class="alert alert-danger d-print-none" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true"><i class="material-icons">close</i></span>
+            </button>
+            <div class="alert-text">
+                <p>{{ flashMessage }}</p>
+            </div>
+        </div>
+        {% endfor %}
+        <div class="card">
+            <h3 class="card-header">
+                <i class="material-icons">store</i> Liste des Magasins :
+                <a class="btn btn-primary pointer" href="{{path('gestiondustock_gestion_magasins_add')}}" title="Ajouter une Magasin" style="float: right;margin: -7px;">
+                  <i class="material-icons" style="color: white;">add_circle_outline</i>Ajouter une Magasin
+                </a>
+            </h3>
+            <div class="card-block">
+                <div class="card-text">
+                    <table class="table" id="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nom</th>
+                                <th style="text-align: right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for magasin in magasins %}
+                            <tr>
+                                <td class="cursor-pointer cliquabletoorder clickloader">{{ magasin.id }}</td>
+                                <td class="cursor-pointer cliquabletoorder clickloader">{{ magasin.nom }}</td>
+                                <td style="text-align: right; display: flex;">
+                                    <a class="btn tooltip-link js-link-row-action dropdown-item inline-dropdown-item" href="#" data-confirm-message="" data-toggle="pstooltip" data-placement="top" data-original-title="Afficher la commande" data-clickable-row="">
+                                        <i class="material-icons">label</i>
+                                    </a>
+                                    <a class="btn tooltip-link js-link-row-action dropdown-item inline-dropdown-item" href="#" data-confirm-message="" data-toggle="pstooltip" data-placement="top" data-original-title="Afficher la commande" data-clickable-row="">
+                                        <i class="material-icons">local_shipping</i>
+                                    </a>
+                                    <a class="btn tooltip-link js-link-row-action dropdown-item inline-dropdown-item" href="#" data-confirm-message="" data-toggle="pstooltip" data-placement="top" data-original-title="Afficher la commande" data-clickable-row="">
+                                        <i class="material-icons">zoom_in</i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,21 @@
+gestiondustock_gestion_magasins:
+  path: gestiondustock/gestion/magasins
+  methods: [ GET,POST ]
+  defaults:
+    _controller: 'GestionDuStock\Controller\GestionMagasinsController::editAction'
+    _legacy_controller: 'AdminGestionDuStockMagasins'
+    _legacy_link: 'AdminGestionDuStockMagasins'
+
+gestiondustock_gestion_stock_magasins:
+  path: gestiondustock/stock/magasins
+  methods: [ GET,POST ]
+  defaults:
+    _controller: 'GestionDuStock\Controller\GestionStockController::editAction'
+    _legacy_controller: 'AdminGestionDuStock'
+    _legacy_link: 'AdminGestionDuStock'
+
+gestiondustock_gestion_magasins_add:
+    path: gestiondustock/gestion/magasins/add
+    methods: [ GET,POST ]
+    defaults:
+      { _controller: 'GestionDuStock\Controller\GestionMagasinsController::addMagasins' }

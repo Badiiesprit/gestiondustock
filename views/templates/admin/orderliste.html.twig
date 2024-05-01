@@ -1,0 +1,64 @@
+{% extends 'PrestaShopBundle:Admin:layout.html.twig' %}
+
+{% block content %}
+
+    {% include '@PrestaShop/Admin/Sell/Order/Order/Blocks/change_orders_status_modal.html.twig' %}
+
+
+    {% block orders_kpi %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="row orders-kpi">
+
+                        {{ render(controller(
+                            'PrestaShopBundle:Admin\\Common:renderKpiRow',
+                            { 'kpiRow': orderKpi }
+                        )) }}
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}
+
+    {% block order_grid_row %}
+        <div class="row">
+            <div class="col-12">
+                <div class="card js-grid-panel" id="order_grid_panel">
+                    {% block grid_panel_header %}
+                        <div class="card-header js-grid-header">
+                            <h3 class="d-inline-block card-header-title">
+                                Commandes Click & Collect (0)
+                            </h3>
+                            {% block grid_actions_block %}
+                                <div class="d-inline-block float-right">
+                                    {{ include('@PrestaShop/Admin/Common/Grid/Blocks/grid_actions.html.twig', {'grid': grid}) }}
+                                </div>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+
+                    {% block grid_panel_body %}
+                        <div class="card-body">
+                            {% block grid_view_block %}
+                                {{ include('@PrestaShop/Admin/Common/Grid/grid.html.twig', {'grid': grid }) }}
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+
+                    {% block grid_panel_footer %}{% endblock %}
+                </div>
+
+                {% block grid_panel_extra_content %}{% endblock %}
+            </div>
+        </div>
+    {% endblock %}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    <script src="{{ asset('themes/default/js/bundle/pagination.js') }}"></script>
+    <script src="{{ asset('themes/new-theme/public/order.bundle.js') }}"></script>
+{% endblock %}
