@@ -18,4 +18,22 @@ gestiondustock_gestion_magasins_add:
     path: gestiondustock/gestion/magasins/add
     methods: [ GET,POST ]
     defaults:
-      { _controller: 'GestionDuStock\Controller\GestionMagasinsController::addMagasins' }
+      { _controller: 'GestionDuStock\Controller\GestionMagasinsController::addOrUpdateMagasins' }
+
+gestiondustock_gestion_magasins_update:
+    path: gestiondustock/gestion/magasins/update/{id}
+    methods: [ GET,POST ]
+    defaults:
+      { _controller: 'GestionDuStock\Controller\GestionMagasinsController::addOrUpdateMagasins' }
+
+gestiondustock_gestion_magasins_edit:
+    path: gestiondustock/gestion/magasins/edit/{id}
+    methods: [ GET,POST ]
+    defaults:
+      { _controller: 'GestionDuStock\Controller\GestionMagasinsController::editMagasins' }
+
+gestiondustock_gestion_magasins_delete:
+    path: gestiondustock/gestion/magasins/delete/{id}
+    methods: [ GET,POST ]
+    defaults:
+      { _controller: 'GestionDuStock\Controller\GestionMagasinsController::deleteMagasins' }

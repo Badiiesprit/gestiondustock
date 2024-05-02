@@ -6,7 +6,7 @@
     <div class="row">
     <div class="col-md-12">
         <div class="card card-kpis">
-            <div class="row orders-kpi justify-content-around">   
+            <div class="row orders-kpi justify-content-around px-3">   
                 <div class="col">
                     <div class="kpi-container box-stats">
                         <div class="kpi-content -color1">
@@ -84,7 +84,7 @@
                             <tr>
                                 <th>ID</th>
                                 <th>Nom</th>
-                                <th style="text-align: right">Actions</th>
+                                <th style="text-align: right; width: 200px;">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -92,15 +92,15 @@
                             <tr>
                                 <td class="cursor-pointer cliquabletoorder clickloader">{{ magasin.id }}</td>
                                 <td class="cursor-pointer cliquabletoorder clickloader">{{ magasin.nom }}</td>
-                                <td style="text-align: right; display: flex;">
-                                    <a class="btn tooltip-link js-link-row-action dropdown-item inline-dropdown-item" href="#" data-confirm-message="" data-toggle="pstooltip" data-placement="top" data-original-title="Afficher la commande" data-clickable-row="">
-                                        <i class="material-icons">label</i>
+                                <td style="text-align: right; display: flex; width: 200px;">
+                                    <a class="btn tooltip-link js-link-row-action dropdown-item inline-dropdown-item" href="{{path('gestiondustock_gestion_magasins_update',{id:magasin.id})}}" data-confirm-message="" data-toggle="pstooltip" data-placement="top" data-original-title="Afficher la commande" data-clickable-row="">
+                                        <i class="material-icons">edit</i>
                                     </a>
-                                    <a class="btn tooltip-link js-link-row-action dropdown-item inline-dropdown-item" href="#" data-confirm-message="" data-toggle="pstooltip" data-placement="top" data-original-title="Afficher la commande" data-clickable-row="">
-                                        <i class="material-icons">local_shipping</i>
-                                    </a>
-                                    <a class="btn tooltip-link js-link-row-action dropdown-item inline-dropdown-item" href="#" data-confirm-message="" data-toggle="pstooltip" data-placement="top" data-original-title="Afficher la commande" data-clickable-row="">
+                                    <a class="btn tooltip-link js-link-row-action dropdown-item inline-dropdown-item" href="{{path('gestiondustock_gestion_magasins_edit',{id:magasin.id})}}" data-confirm-message="" data-toggle="pstooltip" data-placement="top" data-original-title="Afficher la commande" data-clickable-row="">
                                         <i class="material-icons">zoom_in</i>
+                                    </a>
+                                    <a class="btn tooltip-link js-link-row-action dropdown-item inline-dropdown-item" href="{{path('gestiondustock_gestion_magasins_delete',{id:magasin.id})}}" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce magasin ?')" data-confirm-message="" data-toggle="pstooltip" data-placement="top" data-original-title="Afficher la commande" data-clickable-row="">
+                                        <i class="material-icons">close</i>
                                     </a>
                                 </td>
                             </tr>

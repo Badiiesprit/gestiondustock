@@ -25,41 +25,68 @@ class GestionMagasinsController extends FrameworkBundleAdminController
         );
     }
 
-    public function addMagasins(Request $request)
+    public function addOrUpdateMagasins(Request $request, Magasin $magasin = null)
     {
+        $addMagasins = false;
 
-        $magasinForm = $this->createForm(MagasinType::class);
+        if (!$magasin) {
+            $magasin = new Magasin();
+            $addMagasins = true;
+        }
+
+        $magasinForm = $this->createForm(MagasinType::class, $magasin);
 
         $magasinForm->handleRequest($request);
         if ($magasinForm->isSubmitted() && $magasinForm->isValid()) {
-            // Récupérer les données soumises du formulaire
-            $data = $magasinForm->getData();
 
-            // Créer une nouvelle instance de l'entité Magasin
-            $magasin = new Magasin();
-            
-            // Définir les propriétés de l'entité avec les données du formulaire
-            $magasin->setNom($data['nom']); // Exemple avec un champ 'nom' dans le formulaire
-            
-            // Enregistrer l'entité Magasin en base de données
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($magasin);
             $entityManager->flush();
 
             // Ajouter un message flash de succès
-            $this->addFlash('success', 'Le magasin a été créé avec succès !');
+            if($addMagasins){
+                $this->addFlash('success', 'Le magasin a été créé avec succès !');
+            }else{
+                $this->addFlash('success', 'Le magasin a été modifier avec succès !');
+            }
+            
 
             // Redirection vers une autre page après traitement du formulaire
             return $this->redirectToRoute('gestiondustock_gestion_magasins');
         }
         return $this->render(
-            '@Modules/gestiondustock/src/Resources/magasins/add_magasins.html.twig',
+            '@Modules/gestiondustock/src/Resources/magasins/add_update_magasins.html.twig',
             array(
+                'addMagasins' => $addMagasins,
                 'magasinForm' => $magasinForm->createView(),
-                'layoutTitle' => 'Ajouter Magasin'
+                'layoutTitle' => $addMagasins?'Ajouter Magasin':'Update Magasin'
             )
         );
     }
+
+    public function editMagasins(Magasin $magasin)
+    {
+        return $this->render(
+            '@Modules/gestiondustock/src/Resources/magasins/edit_magasins.html.twig',
+            array(
+                'magasin' => $magasin,
+                'layoutTitle' => 'Magasin '
+            )
+        );
+    }
+
+    public function deleteMagasins(Request $request, Magasin $magasin)
+    {
+        $entityManager = $this->getDoctrine()->getManager();
+        $entityManager->remove($magasin);
+        $entityManager->flush();
+
+        $this->addFlash('success', 'Le magasin a été supprimé avec succès !');
+    
+        return $this->redirectToRoute('gestiondustock_gestion_magasins');
+    }
+
+      
 
     
 }

@@ -27,12 +27,12 @@
         {% endfor %}
         <div class="card">
             <h3 class="card-header">
-                <i class="material-icons">store</i> Ajouter Magasin :
+                <i class="material-icons">store</i> {% if addMagasins %}Ajouter{% else %}Update {% endif %}Magasin :
             </h3>
             <div class="card-block">
                 <div class="card-text">
                    {{ form_start(magasinForm, { 'attr': {'id': 'magasinForm'}}) }}
-                    	<div class="border-top pt-2 mb-2">
+                    	<div class="pt-2 mb-2">
                         	<div class="form-group row">
                             	{{ form_label(magasinForm.nom, null,  { 'label_attr': {'class': 'col-5 col-sm-5'} }) }}
                             	<div class="col-7">
