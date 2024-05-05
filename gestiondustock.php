@@ -33,6 +33,7 @@ if (!defined('_PS_VERSION_')) {
 
 require_once __DIR__ . '/vendor/autoload.php';
 use PrestaShopBundle\Entity\Magasin;
+use PrestaShopBundle\Entity\StockMagasin;
 use Doctrine\ORM\EntityManager;
 
 class GestionDuStock extends Module
@@ -75,9 +76,11 @@ class GestionDuStock extends Module
         $entity_manager = $this->get('doctrine.orm.entity_manager');
 
         if (!parent::install()
-            || !$entity_manager->getRepository(Magasin::class)->createTable()
+            //|| !$entity_manager->getRepository(Magasin::class)->createTable()
+            //|| !$entity_manager->getRepository(StockMagasin::class)->createTable()
             || !$this->registerHook('header')
             || !$this->registerHook('displayBackOfficeHeader')
+            || !$this->registerHook('actionOrderStatusPostUpdate')
         ) {
             return false;
         }
@@ -95,13 +98,55 @@ class GestionDuStock extends Module
     {
         $entity_manager = $this->get('doctrine.orm.entity_manager');
 
-        if (!$entity_manager->getRepository(Magasin::class)->dropTable() ||
+        if (//!$entity_manager->getRepository(Magasin::class)->dropTable() ||
+            //!$entity_manager->getRepository(StockMagasin::class)->dropTable() ||
             !$this->removeTabs($this->tab_class) ||
             !parent::uninstall()
         ) {
             return false;
         }
         return true;
+    }
+
+
+    public function hookActionOrderStatusPostUpdate($params)
+    {
+        // Récupérer l'ID de la commande
+        $orderId = (int) $params['id_order'];
+
+        // Charger la commande à partir de son ID
+        $order = new Order($orderId);
+
+        // Vérifier si la commande est chargée avec succès
+        if (Validate::isLoadedObject($order)) {
+            // Récupérer les produits de la commande avec leurs quantités
+            $products = $order->getProducts();
+
+            // Parcourir la liste des produits de la commande
+            foreach ($products as $product) {
+                $productId = (int) $product['product_id'];
+                $productName = $product['product_name'];
+                $productQuantity = (int) $product['product_quantity'];
+
+                // Faites ce que vous voulez avec les informations du produit
+                // Par exemple, enregistrer dans un fichier de journal
+                $this->logProductInfo($orderId, $productId, $productName, $productQuantity);
+            }
+        }
+    }
+    
+    private function logProductInfo($orderId, $productId, $productName, $productQuantity)
+    {
+        $logMessage = sprintf(
+            'Order ID %d - Product ID %d (%s) - Quantity: %d',
+            $orderId,
+            $productId,
+            $productName,
+            $productQuantity
+        );
+
+        // Exemple : enregistrer le message dans un fichier de journal
+        error_log($logMessage, 3, _PS_ROOT_DIR_ . '/var/logs/order_product_info.log');
     }
 
     /**

@@ -1,0 +1,112 @@
+{% extends '@PrestaShop/Admin/layout.html.twig' %}
+{% block javascripts %}
+    {{ parent() }}
+{% endblock %}
+{% block content %}
+    <div class="row">
+        {% for flashMessage in app.flashes('success') %}
+            <div class="alert alert-danger d-print-none" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true"><i class="material-icons">close</i></span>
+                </button>
+                <div class="alert-text">
+                    <p>{{ flashMessage }}</p>
+                </div>
+            </div>
+        {% endfor %}
+        {% for flashMessage in app.flashes('danger') %}
+        <div class="alert alert-danger d-print-none" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true"><i class="material-icons">close</i></span>
+            </button>
+            <div class="alert-text">
+                <p>{{ flashMessage }}</p>
+            </div>
+        </div>
+        {% endfor %}
+        <div class="col-md-12">
+            <div class="col">
+                <div class="card">
+                    <h3 class="card-header">
+                        <i class="material-icons">shopping_basket</i> {{ layoutTitle }}:
+                    </h3>
+                    <div class="card-block">
+                        <div class="card-text">
+                            <div class="col-md-12">
+                                <form id="search_form_2" class="row w-100" method="post" action="#" style="justify-content: space-between;margin: 0px;margin-bottom: 20px;padding-bottom: 20px;border-bottom: solid 1px #eee;">
+                                    <div class="col-md-4 row">
+                                        <label for="start-date" class="col-md-6" style="display: flex;align-items: center;margin-bottom: 0px;justify-content: end;">Date de début:</label>
+                                        <div class="input-group datepicker col-md-6" >
+                                            <input type="text" class="form-control" data-format="YYYY/MM/DD" id="order_date_from" name="order_date_from" value="" placeholder="From" required>
+                                            <div class="input-group-append">
+                                                <div class="input-group-text">
+                                                    <i class="material-icons">date_range</i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 row">
+                                        <label for="start-date" class="col-md-6" style="display: flex;align-items: center;margin-bottom: 0px;justify-content: end;">Date de fin:</label>
+                                        <div class="input-group datepicker col-md-6">
+                                            <input type="text" class="form-control" data-format="YYYY/MM/DD" id="order_date_to" name="order_date_to" value="" placeholder="To" required>
+                                            <div class="input-group-append">
+                                                <div class="input-group-text">
+                                                    <i class="material-icons">date_range</i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2 row">
+                                        <label for="start-date" class="col-md-6" style="display: flex;align-items: center;margin-bottom: 0px;justify-content: end;">Page:</label>
+                                        <div class="input-group col-md-6">
+                                            <select class="form-control" id="order_page" name="order_page" value="" required>
+                                               
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2" style="text-align: right">
+                                        <button type="submit" class="btn btn-primary ml-1 clickloader"><i class="material-icons">search</i>Rechercher</button>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="col-md-12">
+                                <table class="table" id="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th></th>
+                                            <th>Nom</th>
+                                            <th>Prix</th>
+                                            <th>Quantité</th>
+                                            <th style="text-align: right">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for product in products %}
+                                            <tr>
+                                                <td class="cursor-pointer cliquabletoorder clickloader" data-url="##">{{ product.id_product }}</td>
+                                                <td class="cursor-pointer cliquabletoorder clickloader" data-url="##">
+                                                    <img src="{{ product.image_url }}" alt="{{ product.product_name }}" class="imgm img-thumbnail" style="height: 50px;">
+                                                </td>
+                                                <td class="cursor-pointer cliquabletoorder clickloader" data-url="##">{{ product.product_name }}</td>
+                                                <td class="cursor-pointer cliquabletoorder clickloader" data-url="##">{{ product.price | number_format }} {{ currencySymbol }}</td>
+                                                <td class="cursor-pointer cliquabletoorder clickloader" data-url="##">{{ product.quantity }}</td>
+                                                
+                                                <td style="text-align: right; display: flex;">
+                                                    <a class="btn tooltip-link js-link-row-action dropdown-item inline-dropdown-item" href="{{path('gestiondustock_gestion_stock_editStocks',{productid:product.id_product})}}" data-confirm-message="" data-toggle="pstooltip" data-placement="top" data-original-title="Afficher la stock" data-clickable-row="">
+                                                        <i class="material-icons">edit</i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="content_loader"></div>
+{% endblock %}

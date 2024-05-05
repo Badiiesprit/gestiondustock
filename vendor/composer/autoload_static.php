@@ -64,8 +64,10 @@ class ComposerStaticInitbd856a9c65bacfc37a04b325552b56dd
         'GestionDuStock\\Controller\\GestionStockController' => __DIR__ . '/../..' . '/src/Controller/GestionStockController.php',
         'GestionDuStock\\Form\\MagasinType' => __DIR__ . '/../..' . '/src/Form/MagasinType.php',
         'GestionDuStock\\Repository\\MagasinRepository' => __DIR__ . '/../..' . '/src/Repository/MagasinRepository.php',
+        'GestionDuStock\\Repository\\StockMagasinRepository' => __DIR__ . '/../..' . '/src/Repository/StockMagasinRepository.php',
         'GestionDuStock\\Traits\\RepositoryTrait' => __DIR__ . '/../..' . '/src/Traits/RepositoryTrait.php',
         'PrestaShopBundle\\Entity\\Magasin' => __DIR__ . '/../..' . '/src/Entity/Magasin.php',
+        'PrestaShopBundle\\Entity\\StockMagasin' => __DIR__ . '/../..' . '/src/Entity/StockMagasin.php',
     );
 
     public static function getInitializer(ClassLoader $loader)

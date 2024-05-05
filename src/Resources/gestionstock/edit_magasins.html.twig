@@ -1,0 +1,195 @@
+{% extends '@PrestaShop/Admin/layout.html.twig' %}
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        // Sélectionnez tous les boutons avec la classe 'save_stock_magasin'
+        const buttons_save_stock_magasin = document.querySelectorAll('.save_stock_magasin');
+
+        // Parcourez tous les boutons sélectionnés et ajoutez un écouteur d'événements 'click' à chacun
+        buttons_save_stock_magasin.forEach(function(button) {
+            button.addEventListener('click', function() {
+                // Récupérez la valeur de l'attribut 'data-id' du bouton cliqué
+                const magasinId = button.getAttribute('data-magasin');
+                const stockId = button.getAttribute('data-id');
+                const quantite_magasin = document.getElementById('quantite_magasin_'+magasinId).value;
+                const date_expiration = document.getElementById('date_expiration_'+magasinId).value;
+                // Effectuez votre requête AJAX
+                const xhr = new XMLHttpRequest();
+
+                // Définissez l'URL et la méthode de la requête
+                const url = '{{path('gestiondustock_gestion_stock_update_stock_magasin_ajax',{productid:product.id})}}';
+                const method = 'POST'; // ou 'GET' selon votre besoin
+
+                xhr.open(method, url, true);
+
+                // Définissez le type de contenu de la requête si nécessaire
+                xhr.setRequestHeader('Content-Type', 'application/json');
+
+                // Définissez ce qui se passe lorsque la réponse de la requête est reçue
+                xhr.onload = function() {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        // La requête a réussi
+                        const responseData = JSON.parse(xhr.responseText);
+                        console.log('Réponse de la requête AJAX :', responseData);
+                        displaySuccessMessage(responseData.message);
+                        button.setAttribute('data-id', responseData.stock);
+                        document.getElementById('stock_total').textContent=responseData.stockProduct;
+                        // Vous pouvez maintenant utiliser les données de la réponse comme vous le souhaitez
+                    } else {
+                        // La requête a échoué
+                        console.error('Erreur lors de la requête AJAX');
+                    }
+                };
+
+                // Gérez les erreurs réseau
+                xhr.onerror = function() {
+                    console.error('Erreur réseau lors de la requête AJAX');
+                };
+
+                // Envoyez la requête avec les données (si nécessaire)
+                const requestData = { 
+                    magasin: magasinId, 
+                    quantite: quantite_magasin,
+                    date_expiration:date_expiration,
+                    stockId: stockId
+                }; // Exemple de données à envoyer avec la requête
+                xhr.send(JSON.stringify(requestData)); // Envoyer les données sous forme de chaîne JSON si nécessaire
+            });
+        });
+        function displaySuccessMessage(message) {
+            // Créer un élément <div> pour afficher le message de succès
+            const successDiv = document.createElement('div');
+            successDiv.classList.add('alert', 'alert-success'); // Ajouter des classes Bootstrap (ou personnalisées)
+
+            // Ajouter le message de succès à l'élément <div>
+            successDiv.textContent = message;
+
+            // Ajouter l'élément <div> au DOM (par exemple, à la fin du body)
+            document.getElementById('alertajax').appendChild(successDiv);
+
+            // Masquer le message après quelques secondes (optionnel)
+            setTimeout(function() {
+                successDiv.remove();
+            }, 3000);  // Supprimer le message après 3 secondes (3000 millisecondes)
+        }
+    </script>
+    
+{% endblock %}
+{% block content %}
+
+    <div class="row">
+        <div class="col-md-12" id="alertajax"></div>
+        {% for flashMessage in app.flashes('success') %}
+            <div class="alert alert-danger d-print-none" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true"><i class="material-icons">close</i></span>
+                </button>
+                <div class="alert-text">
+                    <p>{{ flashMessage }}</p>
+                </div>
+            </div>
+        {% endfor %}
+        {% for flashMessage in app.flashes('danger') %}
+        <div class="alert alert-danger d-print-none" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true"><i class="material-icons">close</i></span>
+            </button>
+            <div class="alert-text">
+                <p>{{ flashMessage }}</p>
+            </div>
+        </div>
+        {% endfor %}
+        <div class="col-md-4 left-column">
+            <div class="col">
+                <div class="card">
+                    <h3 class="card-header">
+                        <i class="material-icons">shopping_basket</i> {{product.name[defaultLanguageId]}}
+                    </h3>
+                    <div class="card-block">
+                        <div class="card-text">
+                            <div id="customerInfo" class="info-block">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <h5>Total des Quantités : <span id="stock_total">{{stockProduct}}</span></h5>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <img src="{{ productImageUrl }}" alt="{{product.name[defaultLanguageId]}}" class="imgm img-thumbnail" style="width: 100%;">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8 right-column">
+            <div class="col">
+                <div class="card">
+                    <h3 class="card-header">
+                        Magasins ({{magasins | length}})
+                    </h3>
+                    <div class="card-block">
+                        <div class="card-text">
+                            <table class="table" id="orderProductsTable" data-currency-precision="3">
+                                <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>
+                                        <p>Magasin Name</p>
+                                    </th>
+                                    <th>
+                                        <p>Quantité</p>
+                                    </th>
+                                    <th>
+                                        <p>Date d'expiration</p>
+                                    </th>
+                                    <th></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                    {% for magasin in magasins %}
+                                    <tr>
+                                        <td class="">{{ magasin.id }}</td>
+                                        <td class="">{{ magasin.nom }}</td>
+                                        <td class="">
+                                            <input 
+                                                type="number" 
+                                                class="form-control" 
+                                                id="quantite_magasin_{{ magasin.id }}" 
+                                                value="{% if stockMagasins[magasin.id].quantite is defined %}{{ stockMagasins[magasin.id].quantite }}{% endif %}" 
+                                                placeholder="000"
+                                            >
+                                        </td>
+                                        <td class="">
+                                            <input 
+                                                type="date" 
+                                                class="form-control" 
+                                                id="date_expiration_{{ magasin.id }}" 
+                                                value="{% if stockMagasins[magasin.id].dateexpiration is defined %}{{ stockMagasins[magasin.id].dateexpiration }}{% endif %}" 
+                                                placeholder=""
+                                            >
+                                        </td>
+                                        <td style="text-align: center; display: flex;">
+                                            <a 
+                                                class="btn tooltip-link js-link-row-action dropdown-item inline-dropdown-item save_stock_magasin" 
+                                                data-magasin="{{magasin.id}}" 
+                                                data-id="{% if stockMagasins[magasin.id].id is defined %}{{ stockMagasins[magasin.id].id }}{% else %}0{% endif %}" 
+                                                data-toggle="pstooltip" 
+                                                data-placement="top" 
+                                                data-original-title="Mettre à jour le stock" 
+                                                data-clickable-row=""
+                                            >
+                                                <i class="material-icons">edit</i>Mettre à jour le stock
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

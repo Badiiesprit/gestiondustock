@@ -11,6 +11,8 @@ return array(
     'GestionDuStock\\Controller\\GestionStockController' => $baseDir . '/src/Controller/GestionStockController.php',
     'GestionDuStock\\Form\\MagasinType' => $baseDir . '/src/Form/MagasinType.php',
     'GestionDuStock\\Repository\\MagasinRepository' => $baseDir . '/src/Repository/MagasinRepository.php',
+    'GestionDuStock\\Repository\\StockMagasinRepository' => $baseDir . '/src/Repository/StockMagasinRepository.php',
     'GestionDuStock\\Traits\\RepositoryTrait' => $baseDir . '/src/Traits/RepositoryTrait.php',
     'PrestaShopBundle\\Entity\\Magasin' => $baseDir . '/src/Entity/Magasin.php',
+    'PrestaShopBundle\\Entity\\StockMagasin' => $baseDir . '/src/Entity/StockMagasin.php',
 );
