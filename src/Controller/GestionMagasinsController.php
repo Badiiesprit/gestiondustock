@@ -8,10 +8,19 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Process\PhpExecutableFinder;
 use PrestaShopBundle\Entity\Magasin;
+use PrestaShopBundle\Entity\StockMagasin;
 use GestionDuStock\Form\MagasinType;
+use GestionDuStock\Controller\GestionStockController;
+use Configuration;
+use Db;
+use Context; 
+use Currency;
+use Product;
+use Validate;
 
 class GestionMagasinsController extends FrameworkBundleAdminController
 {
+
     public function editAction(Request $request)
     {
         $magasins = $this->getDoctrine()->getRepository(Magasin::class)->findAll();
@@ -64,12 +73,44 @@ class GestionMagasinsController extends FrameworkBundleAdminController
         );
     }
 
-    public function editMagasins(Magasin $magasin)
+    public function editMagasins(Magasin $magasin) 
     {
+        $gestionStockController = new GestionStockController();
+        $defaultLanguageId = (int) Configuration::get('PS_LANG_DEFAULT');
+        $stockMagasins = $this->getDoctrine()->getRepository(StockMagasin::class)->findBy(["magasin"=>$magasin->getId()]);
+        $products = [];
+        // Récupérer l'URL de l'image pour chaque produit
+        foreach ($stockMagasins as $stockMagasin) {
+            $product = new Product($stockMagasin->getProduct()); 
+           
+            if (Validate::isLoadedObject($product)) {
+                $products [] = [
+                    'id_product' => $stockMagasin->getProduct(),
+                    'image_url' => $gestionStockController->getImageUrl($stockMagasin->getProduct()),
+                    'product_name' => $product->name[$defaultLanguageId],
+                    'price' => $product->price,
+                    'quantityTotal' => Product::getQuantity($stockMagasin->getProduct()),
+                    'reference' => $product->reference,
+                    'dateexpiration' => $stockMagasin->getDateexpiration(),
+                    'stockMagasinId' => $stockMagasin->getId(),
+                    'quantity' => $stockMagasin->getQuantite()
+                ];
+            }
+        }
+
+        $context = Context::getContext();
+
+        // Récupérer l'objet représentant la devise active
+        $currency = new Currency($context->currency->id);
+
+        // Obtenez le symbole de la devise
+        $currencySymbol = $currency->getSymbol();
         return $this->render(
-            '@Modules/gestiondustock/src/Resources/magasins/edit_magasins.html.twig',
+            '@Modules/gestiondustock/src/Resources/magasins/edit_magasin.html.twig',
             array(
                 'magasin' => $magasin,
+                'currencySymbol' => $currencySymbol,
+                'products' => $products,
                 'layoutTitle' => 'Magasin '
             )
         );

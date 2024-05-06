@@ -25,3 +25,38 @@
 * Don't forget to prefix your containers with your own identifier
 * to avoid any conflicts with others containers.
 */
+
+
+
+
+// Script JavaScript pour afficher le pop-up avec le formulaire
+document.addEventListener('DOMContentLoaded', function() {
+    // Récupérer le pop-up modal
+    var modal = document.getElementById('myModal');
+
+    // Récupérer le bouton pour fermer le pop-up
+    var closeButton = document.getElementsByClassName('close')[0];
+
+    // Afficher le pop-up modal lorsque le hook est déclenché
+    modal.style.display = 'block';
+
+    // Fermer le pop-up lorsqu'on clique sur le bouton de fermeture
+    closeButton.onclick = function() {
+        modal.style.display = 'none';
+    };
+
+    // Soumettre le formulaire lorsqu'on clique sur le bouton Soumettre
+    var form = document.getElementById('orderStatusForm');
+    form.onsubmit = function(event) {
+        event.preventDefault(); // Empêcher l'envoi du formulaire par défaut
+
+        // Ajouter ici la logique pour traiter le formulaire
+        // Par exemple, envoyer une requête Ajax pour traiter les données du formulaire
+        // Vous pouvez utiliser XMLHttpRequest ou une bibliothèque JavaScript comme Axios
+        // pour envoyer les données du formulaire à votre backend PHP
+        console.log('Formulaire soumis !');
+        // Fermer le pop-up après la soumission du formulaire
+        modal.style.display = 'none';
+    };
+});
+

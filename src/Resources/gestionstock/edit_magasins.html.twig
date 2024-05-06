@@ -17,8 +17,13 @@
                 const xhr = new XMLHttpRequest();
 
                 // Définissez l'URL et la méthode de la requête
-                const url = '{{path('gestiondustock_gestion_stock_update_stock_magasin_ajax',{productid:product.id})}}';
+                const url = '{{path('gestiondustock_gestion_stock_update_stock_magasin_ajax')}}';
                 const method = 'POST'; // ou 'GET' selon votre besoin
+
+                const loader_save_stock_magasin = document.getElementById('loader_save_stock_magasin_'+magasinId);
+                const save_stock_magasin = document.getElementById('save_stock_magasin_'+magasinId);
+                loader_save_stock_magasin.style.display="block";
+                save_stock_magasin.style.display="none";
 
                 xhr.open(method, url, true);
 
@@ -34,6 +39,8 @@
                         displaySuccessMessage(responseData.message);
                         button.setAttribute('data-id', responseData.stock);
                         document.getElementById('stock_total').textContent=responseData.stockProduct;
+                        loader_save_stock_magasin.style.display="none";
+                        save_stock_magasin.style.display="block";
                         // Vous pouvez maintenant utiliser les données de la réponse comme vous le souhaitez
                     } else {
                         // La requête a échoué
@@ -51,7 +58,8 @@
                     magasin: magasinId, 
                     quantite: quantite_magasin,
                     date_expiration:date_expiration,
-                    stockId: stockId
+                    stockId: stockId,
+                    productid : {{product.id}}
                 }; // Exemple de données à envoyer avec la requête
                 xhr.send(JSON.stringify(requestData)); // Envoyer les données sous forme de chaîne JSON si nécessaire
             });
@@ -172,6 +180,7 @@
                                         <td style="text-align: center; display: flex;">
                                             <a 
                                                 class="btn tooltip-link js-link-row-action dropdown-item inline-dropdown-item save_stock_magasin" 
+                                                id="save_stock_magasin_{{magasin.id}}"
                                                 data-magasin="{{magasin.id}}" 
                                                 data-id="{% if stockMagasins[magasin.id].id is defined %}{{ stockMagasins[magasin.id].id }}{% else %}0{% endif %}" 
                                                 data-toggle="pstooltip" 
@@ -179,8 +188,11 @@
                                                 data-original-title="Mettre à jour le stock" 
                                                 data-clickable-row=""
                                             >
-                                                <i class="material-icons">edit</i>Mettre à jour le stock
+                                                <i class="material-icons">edit</i>Mettre à jour
                                             </a>
+                                            <div id="loader_save_stock_magasin_{{magasin.id}}" class="loader_save_stock_magasin" style="display: none;">
+                                                <div class="spinner js-test-email-loader"></div>
+                                            </div>
                                         </td>
                                     </tr>
                                     {% endfor %}

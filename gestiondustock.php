@@ -108,11 +108,11 @@ class GestionDuStock extends Module
         return true;
     }
 
-
     public function hookActionOrderStatusPostUpdate($params)
-    {
+    {        
         // Récupérer l'ID de la commande
         $orderId = (int) $params['id_order'];
+        $newStatus = (int) $params['newOrderStatus']->id;
 
         // Charger la commande à partir de son ID
         $order = new Order($orderId);
@@ -133,8 +133,30 @@ class GestionDuStock extends Module
                 $this->logProductInfo($orderId, $productId, $productName, $productQuantity);
             }
         }
+
+        // Ajouter un script JavaScript pour afficher le pop-up avec le formulaire
+        $this->context->smarty->assign(array(
+            'orderId' => $orderId,
+            'newStatus' => $newStatus,
+        ));
+
+        error_log($this->display(__FILE__, 'views/templates/admin/modal_form.tpl'), 3, _PS_ROOT_DIR_ . '/var/logs/order_product_info.log');
+        return $this->display(__FILE__, 'views/templates/admin/modal_form.tpl');
+
     }
     
+//     public function hookActionOrderStatusPostUpdate($params)
+// {
+//     $orderId = (int) $params['id_order'];
+//     $newStatus = (int) $params['newOrderStatus']->id;
+
+//     // Enregistrer les données de la commande dans les variables JavaScript
+//     $this->context->smarty->assign(array(
+//         'orderId' => $orderId,
+//         'newStatus' => $newStatus,
+//     ));
+// }
+
     private function logProductInfo($orderId, $productId, $productName, $productQuantity)
     {
         $logMessage = sprintf(
@@ -154,10 +176,8 @@ class GestionDuStock extends Module
     */
     public function hookDisplayBackOfficeHeader()
     {
-        if (Tools::getValue('configure') == $this->name) {
-            $this->context->controller->addJS($this->_path.'views/js/back.js');
-            $this->context->controller->addCSS($this->_path.'views/css/back.css');
-        }
+        $this->context->controller->addJS($this->_path.'views/js/back.js');
+        $this->context->controller->addCSS($this->_path.'views/css/back.css');
     }
     /**
      * Add the CSS & JavaScript files you want to be added on the FO.

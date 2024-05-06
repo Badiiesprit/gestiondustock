@@ -29,7 +29,7 @@ class GestionStockController extends FrameworkBundleAdminController
         $defaultLanguageId = (int) Configuration::get('PS_LANG_DEFAULT');
 
         // Construire la requête SQL pour récupérer tous les produits avec le préfixe de table et la langue par défaut
-        $sql = "SELECT p.id_product, pl.name AS product_name, p.price, i.id_image, s.quantity
+        $sql = "SELECT p.id_product, p.reference, pl.name AS product_name, p.price, i.id_image, s.quantity
             FROM " . _DB_PREFIX_ . "product p
             JOIN " . _DB_PREFIX_ . "product_lang pl ON p.id_product = pl.id_product
             LEFT JOIN " . _DB_PREFIX_ . "image i ON p.id_product = i.id_product
@@ -73,8 +73,8 @@ class GestionStockController extends FrameworkBundleAdminController
     {
         $product = new Product($productid);
         $defaultLanguageId = (int) Configuration::get('PS_LANG_DEFAULT');
-
-        if($product){
+ 
+        if($product && isset($product->id) && $product->id == $productid){
             $magasins = $this->getDoctrine()->getRepository(Magasin::class)->findAll();
             $productImageUrl = $this->getImageUrl($productid);
             $stockMagasins = [];
@@ -101,13 +101,13 @@ class GestionStockController extends FrameworkBundleAdminController
         
     }
     
-    public function updateStocksAjax(Request $request , $productid)
+    public function updateStocksAjax(Request $request)
     {
 
         
         // Récupérer des données de la requête AJAX (si nécessaire)
         $data = json_decode($request->getContent(), true);
-
+        $productid = $data["productid"];
         if($data["stockId"] != 0 ){
             $stockMagasin = $this->getDoctrine()->getRepository(StockMagasin::class)->find($data["stockId"]);
         }else{
@@ -184,18 +184,21 @@ class GestionStockController extends FrameworkBundleAdminController
     }
 
     // Fonction pour récupérer l'URL de l'image à partir de l'ID de l'image
-    private function getImageUrl($id_product)
+    public function getImageUrl($id_product)
     {
         // Récupérer les informations sur le produit
         $product = new Product($id_product);
-
-        $imageID = $product->getCoverWs();
-        $image = new Image($imageID);
-        $imagePath = $image->getExistingImgPath();
-        if($imagePath!=""){
-            $imageUrl = Context::getContext()->link->getImageLink($imageID, null);
-            $imageUrl = str_replace("/".$imageID.".","img/p/".$imagePath.".",$imageUrl);
+        if (Validate::isLoadedObject($product)) {
+            $imageID = $product->getCoverWs();
+            $image = new Image($imageID);
+            $imagePath = $image->getExistingImgPath();
+            if($imagePath!=""){
+                $imageUrl = Context::getContext()->link->getImageLink($imageID, null);
+                $imageUrl = str_replace("/".$imageID.".","img/p/".$imagePath.".",$imageUrl);
+            }
+            return $imageUrl;
+        }else{
+            return "";
         }
-        return $imageUrl;
     }
 }

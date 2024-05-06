@@ -1,0 +1,235 @@
+{% extends '@PrestaShop/Admin/layout.html.twig' %}
+{% block javascripts %}
+    {{ parent() }}
+     <script>
+        // Sélectionnez tous les boutons avec la classe 'save_stock_magasin'
+        const buttons_save_stock_magasin = document.querySelectorAll('.save_stock_magasin');
+
+        // Parcourez tous les boutons sélectionnés et ajoutez un écouteur d'événements 'click' à chacun
+        buttons_save_stock_magasin.forEach(function(button) {
+            button.addEventListener('click', function() {
+                // Récupérez la valeur de l'attribut 'data-id' du bouton cliqué
+                const magasinId = button.getAttribute('data-magasin');
+                const productId = button.getAttribute('data-product');
+                const stockId = button.getAttribute('data-id');
+                const quantite_magasin = document.getElementById('quantite_'+productId).value;
+                const date_expiration = document.getElementById('date_expiration_'+productId).value;
+                // Effectuez votre requête AJAX
+                const xhr = new XMLHttpRequest();
+
+                // Définissez l'URL et la méthode de la requête
+                const url = '{{path('gestiondustock_gestion_stock_update_stock_magasin_ajax')}}';
+                const method = 'POST'; // ou 'GET' selon votre besoin
+                
+                const loader_save_stock_magasin = document.getElementById('loader_save_stock_magasin_'+productId);
+                const save_stock_magasin = document.getElementById('save_stock_magasin_'+productId);
+                loader_save_stock_magasin.style.display="block";
+                save_stock_magasin.style.display="none";
+                xhr.open(method, url, true);
+
+                // Définissez le type de contenu de la requête si nécessaire
+                xhr.setRequestHeader('Content-Type', 'application/json');
+
+                // Définissez ce qui se passe lorsque la réponse de la requête est reçue
+                xhr.onload = function() {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        // La requête a réussi
+                        const responseData = JSON.parse(xhr.responseText);
+                        console.log('Réponse de la requête AJAX :', responseData);
+                        displaySuccessMessage(responseData.message);
+                        button.setAttribute('data-id', responseData.stock);
+                        document.getElementById('stock_total_'+productId).textContent=responseData.stockProduct;
+                        loader_save_stock_magasin.style.display="none";
+                        save_stock_magasin.style.display="block";
+                        // Vous pouvez maintenant utiliser les données de la réponse comme vous le souhaitez
+                    } else {
+                        // La requête a échoué
+                        console.error('Erreur lors de la requête AJAX');
+                    }
+                };
+
+                // Gérez les erreurs réseau
+                xhr.onerror = function() {
+                    console.error('Erreur réseau lors de la requête AJAX');
+                };
+
+                // Envoyez la requête avec les données (si nécessaire)
+                const requestData = { 
+                    magasin: magasinId, 
+                    quantite: quantite_magasin,
+                    date_expiration:date_expiration,
+                    stockId: stockId,
+                    productid: productId
+                }; // Exemple de données à envoyer avec la requête
+                xhr.send(JSON.stringify(requestData)); // Envoyer les données sous forme de chaîne JSON si nécessaire
+            });
+        });
+        function displaySuccessMessage(message) {
+            // Créer un élément <div> pour afficher le message de succès
+            const successDiv = document.createElement('div');
+            successDiv.classList.add('alert', 'alert-success'); // Ajouter des classes Bootstrap (ou personnalisées)
+
+            // Ajouter le message de succès à l'élément <div>
+            successDiv.textContent = message;
+
+            // Ajouter l'élément <div> au DOM (par exemple, à la fin du body)
+            document.getElementById('alertajax').appendChild(successDiv);
+
+            // Masquer le message après quelques secondes (optionnel)
+            setTimeout(function() {
+                successDiv.remove();
+            }, 3000);  // Supprimer le message après 3 secondes (3000 millisecondes)
+        }
+    </script>
+{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="col-md-12" id="alertajax"></div>
+        {% for flashMessage in app.flashes('success') %}
+            <div class="alert alert-danger d-print-none" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true"><i class="material-icons">close</i></span>
+                </button>
+                <div class="alert-text">
+                    <p>{{ flashMessage }}</p>
+                </div>
+            </div>
+        {% endfor %}
+        {% for flashMessage in app.flashes('danger') %}
+        <div class="alert alert-danger d-print-none" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true"><i class="material-icons">close</i></span>
+            </button>
+            <div class="alert-text">
+                <p>{{ flashMessage }}</p>
+            </div>
+        </div>
+        {% endfor %}
+        <div class="card">
+            <h3 class="card-header">
+                <i class="material-icons">store</i>Magasin :{{magasin.nom}}
+            </h3>
+            <div class="card-block">
+                <div class="card-text">
+                   <div class="col-md-12">
+                        <form id="search_form_2" class="row w-100" method="post" action="#" style="justify-content: space-between;margin: 0px;margin-bottom: 20px;padding-bottom: 20px;border-bottom: solid 1px #eee;">
+                            <div class="col-md-4 row">
+                                <label for="start-date" class="col-md-6" style="display: flex;align-items: center;margin-bottom: 0px;justify-content: end;">Date de début:</label>
+                                <div class="input-group datepicker col-md-6" >
+                                    <input type="text" class="form-control" data-format="YYYY/MM/DD" id="order_date_from" name="order_date_from" value="" placeholder="From" required>
+                                    <div class="input-group-append">
+                                        <div class="input-group-text">
+                                            <i class="material-icons">date_range</i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 row">
+                                <label for="start-date" class="col-md-6" style="display: flex;align-items: center;margin-bottom: 0px;justify-content: end;">Date de fin:</label>
+                                <div class="input-group datepicker col-md-6">
+                                    <input type="text" class="form-control" data-format="YYYY/MM/DD" id="order_date_to" name="order_date_to" value="" placeholder="To" required>
+                                    <div class="input-group-append">
+                                        <div class="input-group-text">
+                                            <i class="material-icons">date_range</i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-2 row">
+                                <label for="start-date" class="col-md-6" style="display: flex;align-items: center;margin-bottom: 0px;justify-content: end;">Page:</label>
+                                <div class="input-group col-md-6">
+                                    <select class="form-control" id="order_page" name="order_page" value="" required>
+                                        
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-2" style="text-align: right">
+                                <button type="submit" class="btn btn-primary ml-1 clickloader"><i class="material-icons">search</i>Rechercher</button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="col-md-12">
+                        <table class="table" id="data-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th></th>
+                                    <th>Référence</th>
+                                    <th>Nom</th>
+                                    <th>Prix</th>
+                                    <th>Total des Quantités</th>
+                                    <th>Date d'expiration</th>
+                                    <th>Quantité</th>
+                                    <th style="text-align: right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for product in products %} 
+                                    <tr>
+                                        <td class=""  style="text-align: center">
+                                            {{ product.id_product }}
+                                        </td>
+                                        <td class=""  style="text-align: center">
+                                            <img src="{{ product.image_url }}" alt="{{ product.product_name }}" class="imgm img-thumbnail" style="height: 50px;">
+                                        </td>
+                                        <td class=""  style="text-align: center">
+                                            {{ product.reference }}
+                                        </td>
+                                        <td class=""  style="text-align: left">
+                                            <p style="max-width: 400px;">{{ product.product_name }}</p>
+                                        </td>
+                                        <td class=""  style="text-align: center">
+                                            {{ product.price | number_format }} {{ currencySymbol }}
+                                        </td>
+                                        <td class=""  style="text-align: center">
+                                            <span id="stock_total_{{ product.id_product }}">{{ product.quantityTotal }}</span> Produits
+                                        </td>
+                                        <td class=""  style="text-align: center">
+                                        <input 
+                                                type="date" 
+                                                class="form-control" 
+                                                id="date_expiration_{{ product.id_product }}" 
+                                                value="{{product.dateexpiration}}" 
+                                                placeholder=""
+                                            >
+                                        </td>
+                                        <td class=""  style="text-align: center">
+                                        <input 
+                                                type="number" 
+                                                class="form-control" 
+                                                id="quantite_{{ product.id_product }}" 
+                                                value="{{ product.quantity }}" 
+                                                placeholder="000"
+                                                style="width: 100px;"
+                                            >
+                                        </td>
+                                        <td style="text-align: right; display: flex;">
+                                            <a class="btn tooltip-link js-link-row-action dropdown-item inline-dropdown-item save_stock_magasin" 
+                                            id="save_stock_magasin_{{product.id_product}}"
+                                            href="#" 
+                                            data-confirm-message="" 
+                                            data-magasin="{{magasin.id}}"  
+                                            data-product="{{product.id_product}}" 
+                                            data-id="{{product.stockMagasinId}}" 
+                                            data-toggle="pstooltip" 
+                                            data-placement="top" 
+                                            data-original-title="Mettre à jour le stock" 
+                                            data-clickable-row="">
+                                                <i class="material-icons">edit</i>Mettre à jour
+                                            </a>
+                                            <div id="loader_save_stock_magasin_{{product.id_product}}" class="loader_save_stock_magasin" style="display: none;">
+                                                <div class="spinner js-test-email-loader"></div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -3,18 +3,17 @@
     {{ parent() }}
 {% endblock %}
 {% block content %}
-    <div class="row">
-        {% for flashMessage in app.flashes('success') %}
-            <div class="alert alert-danger d-print-none" role="alert">
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true"><i class="material-icons">close</i></span>
-                </button>
-                <div class="alert-text">
-                    <p>{{ flashMessage }}</p>
-                </div>
+    {% for flashMessage in app.flashes('success') %}
+        <div class="alert alert-success d-print-none" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true"><i class="material-icons">close</i></span>
+            </button>
+            <div class="alert-text">
+                <p>{{ flashMessage }}</p>
             </div>
-        {% endfor %}
-        {% for flashMessage in app.flashes('danger') %}
+        </div>
+    {% endfor %}
+    {% for flashMessage in app.flashes('danger') %}
         <div class="alert alert-danger d-print-none" role="alert">
             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true"><i class="material-icons">close</i></span>
@@ -23,7 +22,8 @@
                 <p>{{ flashMessage }}</p>
             </div>
         </div>
-        {% endfor %}
+    {% endfor %}
+    <div class="row">
         <div class="col-md-12">
             <div class="col">
                 <div class="card">
@@ -75,6 +75,7 @@
                                         <tr>
                                             <th>ID</th>
                                             <th></th>
+                                            <th>Référence</th>
                                             <th>Nom</th>
                                             <th>Prix</th>
                                             <th>Quantité</th>
@@ -88,6 +89,7 @@
                                                 <td class="cursor-pointer cliquabletoorder clickloader" data-url="##">
                                                     <img src="{{ product.image_url }}" alt="{{ product.product_name }}" class="imgm img-thumbnail" style="height: 50px;">
                                                 </td>
+                                                <td class="cursor-pointer cliquabletoorder clickloader" data-url="##">{{ product.reference }}</td>
                                                 <td class="cursor-pointer cliquabletoorder clickloader" data-url="##">{{ product.product_name }}</td>
                                                 <td class="cursor-pointer cliquabletoorder clickloader" data-url="##">{{ product.price | number_format }} {{ currencySymbol }}</td>
                                                 <td class="cursor-pointer cliquabletoorder clickloader" data-url="##">{{ product.quantity }}</td>

@@ -21,7 +21,7 @@ gestiondustock_gestion_stock_editStocks:
       { _controller: 'GestionDuStock\Controller\GestionStockController::editStocks' }
 
 gestiondustock_gestion_stock_update_stock_magasin_ajax:
-  path: gestiondustock/stock/magasins/update_stock/{productid}
+  path: gestiondustock/stock/magasins/update_stock
   methods: [ GET,POST ]
   defaults:
     { _controller: 'GestionDuStock\Controller\GestionStockController::updateStocksAjax' }
