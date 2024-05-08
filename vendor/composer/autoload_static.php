@@ -60,6 +60,7 @@ class ComposerStaticInitbd856a9c65bacfc37a04b325552b56dd
 
     public static $classMap = array (
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
+        'GestionDuStock\\Command\\DateExpirationCommand' => __DIR__ . '/../..' . '/src/Command/DateExpirationCommand.php',
         'GestionDuStock\\Controller\\GestionMagasinsController' => __DIR__ . '/../..' . '/src/Controller/GestionMagasinsController.php',
         'GestionDuStock\\Controller\\GestionStockController' => __DIR__ . '/../..' . '/src/Controller/GestionStockController.php',
         'GestionDuStock\\Form\\MagasinType' => __DIR__ . '/../..' . '/src/Form/MagasinType.php',

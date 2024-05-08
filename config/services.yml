@@ -1,2 +1,14 @@
 # modules/gestiondustock/config/services.yml
 services:
+  GestionDuStock\Command\DateExpirationCommand:
+    class: GestionDuStock\Command\DateExpirationCommand
+    tags:
+      - { name: 'console.command', command: 'gestiondustock:dateexpiration' }
+    arguments:
+      $stockMagasinRepository: '@GestionDuStock\Repository\StockMagasinRepository'
+
+  GestionDuStock\Repository\StockMagasinRepository:
+    class: GestionDuStock\Repository\StockMagasinRepository
+    factory: ['@doctrine.orm.default_entity_manager', 'getRepository']
+    arguments:
+      - PrestaShopBundle\Entity\StockMagasin

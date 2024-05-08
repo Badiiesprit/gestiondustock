@@ -76,8 +76,8 @@ class GestionDuStock extends Module
         $entity_manager = $this->get('doctrine.orm.entity_manager');
 
         if (!parent::install()
-            //|| !$entity_manager->getRepository(Magasin::class)->createTable()
-            //|| !$entity_manager->getRepository(StockMagasin::class)->createTable()
+            || !$entity_manager->getRepository(Magasin::class)->createTable()
+            || !$entity_manager->getRepository(StockMagasin::class)->createTable()
             || !$this->registerHook('header')
             || !$this->registerHook('displayBackOfficeHeader')
             || !$this->registerHook('actionOrderStatusPostUpdate')
@@ -98,8 +98,8 @@ class GestionDuStock extends Module
     {
         $entity_manager = $this->get('doctrine.orm.entity_manager');
 
-        if (//!$entity_manager->getRepository(Magasin::class)->dropTable() ||
-            //!$entity_manager->getRepository(StockMagasin::class)->dropTable() ||
+        if (!$entity_manager->getRepository(Magasin::class)->dropTable() ||
+            !$entity_manager->getRepository(StockMagasin::class)->dropTable() ||
             !$this->removeTabs($this->tab_class) ||
             !parent::uninstall()
         ) {
