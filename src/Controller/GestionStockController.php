@@ -30,7 +30,7 @@ class GestionStockController extends FrameworkBundleAdminController
         $defaultLanguageId = (int) Configuration::get('PS_LANG_DEFAULT');
         // Récupérer la page courante depuis la requête
         $currentPage = (int) $request->query->get('page', 0);
-        $search = $request->query->get('search', "");
+        $search = $request->request->get('search', "");
         $itemsPerPage = 20; // Nombre d'éléments par page
         // Construire la requête SQL pour récupérer tous les produits avec le préfixe de table et la langue par défaut
         $sql = "SELECT p.id_product, p.reference, pl.name AS product_name, p.price, i.id_image, s.quantity
@@ -42,7 +42,12 @@ class GestionStockController extends FrameworkBundleAdminController
         if(isset($search) && !empty($search)){
             $sql .= " AND (pl.name LIKE '%".$search."%' OR p.reference LIKE '%".$search."%') ";
         }
-        $sql .= " LIMIT " .$itemsPerPage." OFFSET " .($itemsPerPage*$currentPage);
+
+        $offset = 0;
+        if($currentPage>0){
+            $offset = $currentPage - 1;
+        }
+        $sql .= " LIMIT " .$itemsPerPage." OFFSET " .$offset;
 
         // Exécuter la requête SQL avec la classe Db de PrestaShop
         $products = Db::getInstance()->executeS($sql);
@@ -77,7 +82,7 @@ class GestionStockController extends FrameworkBundleAdminController
         // Exécuter la requête SQL avec la classe Db de PrestaShop
         $size_products = Db::getInstance()->executeS($sql);
         $paginator = 0;
-        if(isset($size_products[0]["sizep"])){
+        if(isset($size_products[0]["sizep"]) && $size_products[0]["sizep"]>$itemsPerPage){
             $paginator = $quotient = intdiv( $size_products[0]["sizep"], $itemsPerPage);
             if( ($size_products[0]["sizep"] % $itemsPerPage) !=0)$paginator++;
         }
@@ -85,7 +90,6 @@ class GestionStockController extends FrameworkBundleAdminController
         for ($p=0; $p < $paginator ; $p++) { 
             $pages [] = $p;
         }
-        
         return $this->render(
             '@Modules/gestiondustock/src/Resources/gestionstock/all_products.html.twig',
             array(

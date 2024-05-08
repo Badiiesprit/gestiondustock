@@ -34,7 +34,7 @@
                         <div class="card-text">
                             
                             <div class="col-md-12">
-                                <form id="search_form_2" class="row w-100" method="get" action="{{ path('gestiondustock_gestion_stock_magasins') }}" style="justify-content: space-between;margin: 0px;margin-bottom: 20px;padding-bottom: 20px;border-bottom: solid 1px #eee;">
+                                <form id="search_form_2" class="row w-100" method="post" action="{{ path('gestiondustock_gestion_stock_magasins') }}" style="justify-content: space-between;margin: 0px;margin-bottom: 20px;padding-bottom: 20px;border-bottom: solid 1px #eee;">
                                     <div class="col-md-8 row">
                                         <label for="start-date" class="col-md-6" style="display: flex;align-items: center;margin-bottom: 0px;justify-content: end;">Rechercher </label>
                                         <div class="input-group col-md-6" >
@@ -89,13 +89,13 @@
 
                                         {% for page in pages %}
                                             {% if currentPage == page %}
-                                                <span>{{ page + 1 }}</span>
+                                                <span>{{ page }}</span>
                                             {% else %}
-                                                <a href="{{ path('gestiondustock_gestion_stock_magasins', { 'page': page }) }}">{{ page + 1 }}</a>
+                                                <a href="{{ path('gestiondustock_gestion_stock_magasins', { 'page': page }) }}">{{ page }}</a>
                                             {% endif %}
                                         {% endfor %}
 
-                                        {% if paginator != 0 and paginator != currentPage %}
+                                        {% if (paginator -1 ) != currentPage %}
                                             <a href="{{ path('gestiondustock_gestion_stock_magasins', { 'page': ( currentPage + 1 ) }) }}">Suivant</a>
                                         {% endif %}
                                     </div>
