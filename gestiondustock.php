@@ -34,6 +34,7 @@ if (!defined('_PS_VERSION_')) {
 require_once __DIR__ . '/vendor/autoload.php';
 use PrestaShopBundle\Entity\Magasin;
 use PrestaShopBundle\Entity\StockMagasin;
+use PrestaShopBundle\Entity\OrdersMagasin;
 use Doctrine\ORM\EntityManager;
 
 class GestionDuStock extends Module
@@ -45,6 +46,9 @@ class GestionDuStock extends Module
         'AdminGestionDuStock' => 'Gestion Du Stock LEGY',
         'AdminGestionDuStockMagasins' => 'Magasins LEGY'
     ];
+    private $remove_stock = [3,5]; //En cours de préparation ou Livré
+    private $add_stock = [6,7]; //Annulé ou Remboursé
+    private $entity_manager;
     
     public function __construct()
     {
@@ -66,6 +70,7 @@ class GestionDuStock extends Module
         $this->description = $this->l('Gestion du stock par magasins.');
 
         $this->ps_versions_compliancy = array('min' => '1.7', 'max' => '8.0');
+        $this->entity_manager = $this->get('doctrine.orm.entity_manager');
     }
 
     /**
@@ -73,14 +78,16 @@ class GestionDuStock extends Module
      */
     public function install()
     {
-        $entity_manager = $this->get('doctrine.orm.entity_manager');
+
 
         if (!parent::install()
-            || !$entity_manager->getRepository(Magasin::class)->createTable()
-            || !$entity_manager->getRepository(StockMagasin::class)->createTable()
+            || !$this->entity_manager->getRepository(Magasin::class)->createTable()
+            || !$this->entity_manager->getRepository(StockMagasin::class)->createTable()
+            || !$this->entity_manager->getRepository(OrdersMagasin::class)->createTable()
             || !$this->registerHook('header')
             || !$this->registerHook('displayBackOfficeHeader')
             || !$this->registerHook('actionOrderStatusPostUpdate')
+            || !$this->registerHook('displaySelectMagasinOfProduct')
         ) {
             return false;
         }
@@ -96,10 +103,10 @@ class GestionDuStock extends Module
 
     public function uninstall()
     {
-        $entity_manager = $this->get('doctrine.orm.entity_manager');
 
-        if (!$entity_manager->getRepository(Magasin::class)->dropTable() ||
-            !$entity_manager->getRepository(StockMagasin::class)->dropTable() ||
+        if (!$this->entity_manager->getRepository(Magasin::class)->dropTable() ||
+            !$this->entity_manager->getRepository(StockMagasin::class)->dropTable() ||
+            !$this->entity_manager->getRepository(OrdersMagasin::class)->dropTable() ||
             !$this->removeTabs($this->tab_class) ||
             !parent::uninstall()
         ) {
@@ -108,68 +115,104 @@ class GestionDuStock extends Module
         return true;
     }
 
+    public function hookDisplaySelectMagasinOfProduct($params)
+    {
+        // Récupérer les paramètres du hook
+        $productId = (int) $params['product'];
+        $quantity = (int) $params['quantity'];
+        $orderId = (int) $params['order'];
+
+        // Exemple de traitement pour afficher la sélection de magasins
+        $magasins = $this->getMagasinOptions($productId, $orderId,$quantity);
+        $magasinOptions = $magasins["magasins"];
+        $disabled = $magasins["disabled"];
+        $urlAjax = self::getService('router')->generate('gestiondustock_gestion_stock_update_order_magasin_ajax');
+
+        // Assigner les données au template Twig du hook
+        $this->context->smarty->assign('magasinOptions', $magasinOptions);
+        $this->context->smarty->assign('productId', $productId);
+        $this->context->smarty->assign('urlAjax', $urlAjax);
+        $this->context->smarty->assign('disabled', $disabled);
+        // Retourner le rendu du template Twig
+        return $this->display(__FILE__, 'views/templates/hook/select_magasin_of_product.tpl');
+    }
+
+    // Méthode pour obtenir les options de magasin pour le produit et la commande
+    private function getMagasinOptions($productId, $orderId,$quantity)
+    {
+
+        $stockMagasin = $this->entity_manager->getRepository(StockMagasin::class)->findBy(["product"=>$productId]);
+        $Magasins = [];
+        $disabled = false;
+        foreach ($stockMagasin as $stockM){
+            $Magasin = $this->entity_manager->getRepository(Magasin::class)->find($stockM->getMagasin());
+
+            if($Magasin){
+                $selectedMagasin = $this->entity_manager->getRepository(OrdersMagasin::class)->findOneBy(["productId"=>$productId,"orderId"=>$orderId,"magasinId"=>$stockM->getMagasin()]);
+                $selected = false;
+                if($selectedMagasin){
+                    $selected = true;
+                    if($selectedMagasin->getStatus() == 1){
+                        $disabled = true;
+                    }
+                }
+                $Magasins [] = array(
+                    'id' => $stockM->getMagasin(),
+                    'name' => $Magasin->getNom(),
+                    'orderId' => $orderId,
+                    'stock'=>$stockM->getQuantite(),
+                    'quantity' => $quantity,
+                    'selected' => $selected
+                );
+            }
+        }
+        // Logique pour récupérer les options de magasin selon $productId et $orderId
+        // Retourner les données sous forme de tableau d'options
+        return ["magasins"=>$Magasins,"disabled"=>$disabled];
+    }
+
     public function hookActionOrderStatusPostUpdate($params)
-    {        
+    {
+
         // Récupérer l'ID de la commande
         $orderId = (int) $params['id_order'];
         $newStatus = (int) $params['newOrderStatus']->id;
-
         // Charger la commande à partir de son ID
         $order = new Order($orderId);
-
         // Vérifier si la commande est chargée avec succès
         if (Validate::isLoadedObject($order)) {
-            // Récupérer les produits de la commande avec leurs quantités
+
             $products = $order->getProducts();
-
-            // Parcourir la liste des produits de la commande
-            foreach ($products as $product) {
-                $productId = (int) $product['product_id'];
-                $productName = $product['product_name'];
-                $productQuantity = (int) $product['product_quantity'];
-
-                // Faites ce que vous voulez avec les informations du produit
-                // Par exemple, enregistrer dans un fichier de journal
-                $this->logProductInfo($orderId, $productId, $productName, $productQuantity);
+            if(in_array($newStatus,$this->remove_stock)){
+                foreach ($products as $product) {
+                    $productId = (int) $product['product_id'];
+                    $selectedMagasin = $this->entity_manager->getRepository(OrdersMagasin::class)->findOneBy(["productId"=>$productId,"orderId"=>$orderId]);
+                    if($selectedMagasin){
+                        if($selectedMagasin->getStatus() == 0){
+                            $selectedMagasin->setStatus(1);
+                            $produit_manager = $this->entity_manager->getRepository(StockMagasin::class)->findOneBy(["product"=>$productId]);
+                            $produit_manager->setQuantite($produit_manager->getQuantite() - $selectedMagasin->getQuantite());
+                            $this->entity_manager->flush();
+                        }
+                    }
+                }
+            }elseif (in_array($newStatus,$this->add_stock)){
+                foreach ($products as $product) {
+                    $productId = (int) $product['product_id'];
+                    $selectedMagasin = $this->entity_manager->getRepository(OrdersMagasin::class)->findOneBy(["productId"=>$productId,"orderId"=>$orderId]);
+                    if($selectedMagasin){
+                        if($selectedMagasin->getStatus() == 1){
+                            $selectedMagasin->setStatus(0);
+                            $produit_manager = $this->entity_manager->getRepository(StockMagasin::class)->findOneBy(["product"=>$productId]);
+                            $produit_manager->setQuantite($produit_manager->getQuantite() + $selectedMagasin->getQuantite());
+                            $this->entity_manager->flush();
+                        }
+                    }
+                }
             }
         }
-
-        // Ajouter un script JavaScript pour afficher le pop-up avec le formulaire
-        $this->context->smarty->assign(array(
-            'orderId' => $orderId,
-            'newStatus' => $newStatus,
-        ));
-
-        error_log($this->display(__FILE__, 'views/templates/admin/modal_form.tpl'), 3, _PS_ROOT_DIR_ . '/var/logs/order_product_info.log');
-        return $this->display(__FILE__, 'views/templates/admin/modal_form.tpl');
-
     }
-    
-//     public function hookActionOrderStatusPostUpdate($params)
-// {
-//     $orderId = (int) $params['id_order'];
-//     $newStatus = (int) $params['newOrderStatus']->id;
 
-//     // Enregistrer les données de la commande dans les variables JavaScript
-//     $this->context->smarty->assign(array(
-//         'orderId' => $orderId,
-//         'newStatus' => $newStatus,
-//     ));
-// }
-
-    private function logProductInfo($orderId, $productId, $productName, $productQuantity)
-    {
-        $logMessage = sprintf(
-            'Order ID %d - Product ID %d (%s) - Quantity: %d',
-            $orderId,
-            $productId,
-            $productName,
-            $productQuantity
-        );
-
-        // Exemple : enregistrer le message dans un fichier de journal
-        error_log($logMessage, 3, _PS_ROOT_DIR_ . '/var/logs/order_product_info.log');
-    }
 
     /**
     * Add the CSS & JavaScript files you want to be loaded in the BO.

@@ -6,7 +6,7 @@ use Doctrine\ORM\EntityRepository;
 use GestionDuStock\Traits\RepositoryTrait;
 
 
-class MagasinRepository extends EntityRepository
+class OrdersMagasinRepository extends EntityRepository
 {
     use RepositoryTrait;
 
